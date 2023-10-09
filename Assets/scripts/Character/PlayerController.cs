@@ -5,12 +5,17 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour, IDamageable
 {
 
+    [SerializeField]
+    private float _maxLife = 100f;
+
+    [SerializeField]
+    private float _currentLife = 100f;
+
     [SerializeField] 
     private Rigidbody rb;
 
     [SerializeField]
     private PlayerInput playerInput;
-
 
     [SerializeField] 
     private Animator animator;
@@ -26,7 +31,39 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private Transform camMainTransform;
 
-    
+    public float MaxLife
+    {
+        get
+        {
+            return _maxLife;
+        }
+    }
+
+    public float CurrentLife {
+        get
+        {
+            return _currentLife;
+        }
+        set
+        {
+            if(value < 0)
+            {
+                value = 0;
+            }
+
+            if(value > MaxLife)
+            {
+                value = MaxLife;
+            }
+
+            _currentLife = value;
+        }
+    }
+
+    public bool IsDead
+    {
+        get { return CurrentLife <= 0; }
+    }
 
     // Start is called before the first frame update
     void Start() 
@@ -37,6 +74,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        
         Move();
         animator.SetBool("falling", !IsGrounded());
     }
@@ -47,7 +85,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         if (input != Vector2.zero)
         {
-
             Vector3 direction = rb.transform.forward;
 
             rb.velocity = new Vector3(direction.x * speed, rb.velocity.y, direction.z * speed);
@@ -59,14 +96,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
             rb.rotation = Quaternion.Lerp(rb.rotation, rotation, Time.deltaTime * rotationSpeed);
             
-
-            /*float targetAngle = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg + camMainTransform.eulerAngles.y;
-            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-
-            rb.rotation = Quaternion.Lerp(rb.rotation, rotation, Time.deltaTime * rotationSpeed);*/
-
-            //transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-
             animator.SetBool("run", true);
 
             return;
@@ -105,10 +134,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void TakeDamage(float damage, HitType tipo)
     {
-
         damage *= (float)tipo;
 
-
-
+        Debug.Log($"Vida: {CurrentLife}, DañoRecibido: {damage}");
+        if(CurrentLife <= 0)
+        {
+            animator.SetTrigger("death");
+            return;
+        }
+        CurrentLife -= damage;
+        animator.SetTrigger("hit");
     }
 }
