@@ -2,7 +2,8 @@
 
 public enum HitType
 {
-    normal = 1,
-    critico = 2
+    minimo = 50,
+    normal = 100,
+    critico = 200
 }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]   
-public class PlayerController : MonoBehaviour, IDamageable
+public class PlayerController : MonoBehaviour, IDamageable, IAttack
 {
 
     [SerializeField]
@@ -28,6 +28,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [SerializeField]
     private float jumpForce = 10f;
+
+    [SerializeField]
+    private float _attackDamage = 10f;
+
+    private bool _isTakingDamage = false;
+    private bool _isAttack = false;
 
     private Transform camMainTransform;
 
@@ -65,6 +71,22 @@ public class PlayerController : MonoBehaviour, IDamageable
         get { return CurrentLife <= 0; }
     }
 
+    public float AttackDamage { 
+        get { return _attackDamage; } 
+        set { _attackDamage = value; }
+    }
+
+    public bool IsAttack
+    {
+        get { return _isAttack; }
+        set { _isAttack = value; }
+    }
+
+    public bool IsTackingDamage { 
+        get { return _isTakingDamage; }
+        set { _isTakingDamage = value; }
+    }
+
     // Start is called before the first frame update
     void Start() 
     {
@@ -75,6 +97,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void FixedUpdate()
     {
         
+        if (IsDead)
+        {
+            animator.SetTrigger("death");
+            gameObject.GetComponent<PlayerController>().enabled = false;
+            return;
+        }
+
+        if (IsTackingDamage)
+            return;
+
+        if (IsAttack)
+            return;
+
+        Attack();
         Move();
         animator.SetBool("falling", !IsGrounded());
     }
@@ -132,17 +168,42 @@ public class PlayerController : MonoBehaviour, IDamageable
         return grounded;
     }
 
+    public void OnHitAnimationStart()
+    {
+        _isTakingDamage = true;
+    }
+
+    public void OnHitAnimationEnd()
+    {
+        _isTakingDamage = false;
+    }
+
+    public void OnAttackAnimationStart()
+    {
+        _isAttack = true;
+    }
+
+    public void OnAttackAnimationEnd()
+    {
+        _isAttack = false;
+    }
+
     public void TakeDamage(float damage, HitType tipo)
     {
-        damage *= (float)tipo;
-
-        Debug.Log($"Vida: {CurrentLife}, DañoRecibido: {damage}");
-        if(CurrentLife <= 0)
+        if(!IsDead)
         {
-            animator.SetTrigger("death");
-            return;
+            damage *= (float)tipo;
+
+            Debug.Log($"Damage: {damage}, HitType: {tipo}");
+        
+            CurrentLife -= damage;
+            animator.SetTrigger("hit");
         }
-        CurrentLife -= damage;
-        animator.SetTrigger("hit");
+
+    }
+
+    public void Attack()
+    {
+        
     }
 }

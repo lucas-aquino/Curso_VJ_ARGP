@@ -29,7 +29,7 @@
                     "id": "a6e759de-4eac-4a8d-ac63-7ce45a535ec2",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "initialStateCheck": false
                 },
                 {
@@ -144,11 +144,11 @@
                 },
                 {
                     "name": "",
-                    "id": "396da0fd-458e-48f4-b881-373a3bf16e3d",
+                    "id": "04e78e71-a0a0-441f-9a93-e58fd38c3b8b",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Mouse",
                     "action": "Punch",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -170,7 +170,7 @@
                     "path": "<Gamepad>/dpad/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "samba",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -196,6 +196,17 @@
             "devices": [
                 {
                     "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Mouse",
+            "bindingGroup": "Mouse",
+            "devices": [
+                {
+                    "devicePath": "<Mouse>",
                     "isOptional": false,
                     "isOR": false
                 }
