@@ -1,14 +1,14 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]   
-public class PlayerController : MonoBehaviour, IDamageable, IAttack
+public class PlayerController : MonoBehaviour, IDamageable
 {
 
     [SerializeField]
     private float _maxLife = 100f;
 
-    [SerializeField]
     private float _currentLife = 100f;
 
     [SerializeField] 
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
         get { return CurrentLife <= 0; }
     }
 
-    public float AttackDamage { 
+    public float Damage { 
         get { return _attackDamage; } 
         set { _attackDamage = value; }
     }
@@ -87,20 +87,23 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
         set { _isTakingDamage = value; }
     }
 
+    public string Tag => gameObject.tag;
+
+
+
     // Start is called before the first frame update
     void Start() 
     {
         Cursor.visible = false;
+        CurrentLife = MaxLife;
         camMainTransform = Camera.main.transform;
     }
 
     private void FixedUpdate()
     {
-        
         if (IsDead)
         {
-            animator.SetTrigger("death");
-            gameObject.GetComponent<PlayerController>().enabled = false;
+            Destruir();
             return;
         }
 
@@ -110,7 +113,6 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
         if (IsAttack)
             return;
 
-        Attack();
         Move();
         animator.SetBool("falling", !IsGrounded());
     }
@@ -137,6 +139,8 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
             return;
         }
 
+        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+
         animator.SetBool("run", false);
     }
 
@@ -150,8 +154,12 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
     }
 
     public void OnPunch(InputAction.CallbackContext callbackContext) {
+        if (IsAttack)
+            return;
+
         Debug.LogWarning("punch");
         animator.SetTrigger("punch");
+        Attack();
     }
 
     public void OnSamba(InputAction.CallbackContext callbackContext)
@@ -192,7 +200,7 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
     {
         if(!IsDead)
         {
-            damage *= (float)tipo;
+            damage *= ((float)tipo / 100f);
 
             Debug.Log($"Damage: {damage}, HitType: {tipo}");
         
@@ -204,6 +212,12 @@ public class PlayerController : MonoBehaviour, IDamageable, IAttack
 
     public void Attack()
     {
-        
+        Debug.Log("Attack");
+    }
+
+    public void Destruir()
+    {
+        animator.SetTrigger("death");
+        gameObject.GetComponent<PlayerController>().enabled = false;
     }
 }

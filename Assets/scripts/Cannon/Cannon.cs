@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Cannon : MonoBehaviour
+public class Cannon : MonoBehaviour, IDamageable
 {
 
     [SerializeField]
@@ -19,6 +19,11 @@ public class Cannon : MonoBehaviour
 
 
     [SerializeField]
+    private float _maxLife = 50f;
+
+    private float _currentLife = 50f;
+
+    [SerializeField]
     private Transform muzzle;
 
     [SerializeField] 
@@ -29,13 +34,62 @@ public class Cannon : MonoBehaviour
 
     private Bullet _bullet;
 
+    public float MaxLife
+    {
+        get
+        {
+            return _maxLife;
+        }
+    }
+
+    public float CurrentLife
+    {
+        get
+        {
+            return _currentLife;
+        }
+        set
+        {
+            if (value < 0)
+            {
+                value = 0;
+            }
+
+            if (value > MaxLife)
+            {
+                value = MaxLife;
+            }
+
+            _currentLife = value;
+        }
+    }
+
+    public bool IsDead
+    {
+        get { return CurrentLife <= 0; }
+    }
+
+    public bool IsTackingDamage => false;
+
+    public string Tag => gameObject.tag;
+
     private void Start()
     {
         _bullet = bulletPrefab.GetComponent<Bullet>();
         _bullet.Fuerza = fuerza;
         _bullet.Damage = bulletDamage;
 
+        CurrentLife = MaxLife;
+
         StartCoroutine(Fire());
+    }
+
+    private void Update()
+    {
+        if(IsDead)
+        {
+            Destruir();
+        }
     }
 
     private void Atack()
@@ -55,5 +109,20 @@ public class Cannon : MonoBehaviour
             float waitingTime = Random.Range(timeMin, timeMax);
             yield return new WaitForSeconds(waitingTime);
         }
+    }
+
+    public void TakeDamage(float damage, HitType tipo)
+    {
+        if (!IsDead)
+        {
+            damage *= ((float)tipo / 100f);
+
+            CurrentLife -= damage;
+        }
+    }
+
+    public void Destruir()
+    {
+        Destroy(gameObject);
     }
 }

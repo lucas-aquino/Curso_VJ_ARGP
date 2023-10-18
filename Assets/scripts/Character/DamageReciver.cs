@@ -5,23 +5,18 @@ using UnityEngine;
 public class DamageReciver : MonoBehaviour
 {
     [SerializeField]
-    private PlayerController playerController;
+    private GameObject damageableObject;
 
     [SerializeField]
     private HitType damageType;
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag.Equals("bullet"))
+        if (other.tag.Equals("harmful"))
         {
             IDamager damager = other.gameObject.GetComponent<IDamager>();
-            playerController.TakeDamage(damager.Damage * (float)damageType, damageType);
+            damager.Attack(damageableObject.GetComponent<IDamageable>(), damageType);
             damager.Destruir();
-        }
-
-        if (other.tag.Equals("punch"))
-        {
-
         }
     }
 }

@@ -38,6 +38,8 @@ public class Bullet : MonoBehaviour, IDamager
         }
     }
 
+    public bool IsAttack => true;
+
     private void Start()
     {
         Invoke(nameof(Destruir), 5);
@@ -46,5 +48,14 @@ public class Bullet : MonoBehaviour, IDamager
     public void Destruir()
     {
         Destroy(gameObject);
+    }
+
+    public void Attack(IDamageable damageable, HitType hitType)
+    {
+        if (!damageable.Tag.Equals("player"))
+            return;
+
+        damageable.TakeDamage(_damage, hitType);
+        Destruir();
     }
 }
